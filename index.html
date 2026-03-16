@@ -12,6 +12,7 @@
             --bright-red: #ff0000;
             --bg: #030303;
             --gray: #121212;
+            --lock-gray: #2a2a2a;
             --scanline-color: rgba(255, 255, 255, 0.05);
         }
 
@@ -73,7 +74,7 @@
 
         .btn-menu:hover { color: #fff; letter-spacing: 5px; }
 
-        /* --- TELA DE SELEÇÃO (CARDS) --- */
+        /* --- TELA DE SELEÇÃO --- */
         .chapter-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -108,28 +109,38 @@
 
         .ch-card:not(.locked):hover .ch-img-preview { opacity: 0.8; transform: scale(1.05); }
 
-        /* Estilo para Capítulo Bloqueado */
+        /* --- ESTILO DO CADEADO CINZA --- */
         .ch-card.locked {
             cursor: not-allowed;
-            border: 1px dashed #222;
+            background: #080808;
+            border: 1px solid #1a1a1a;
         }
 
-        .lock-icon {
-            font-size: 3rem;
-            color: #333;
-            position: absolute;
+        .lock-svg {
+            width: 50px;
+            height: 50px;
+            fill: var(--lock-gray);
+            transition: 0.3s;
             z-index: 2;
+        }
+
+        .ch-card.locked:hover .lock-svg {
+            fill: #444;
+            transform: scale(1.1);
         }
 
         .ch-label {
             position: absolute; bottom: 0; width: 100%;
-            background: linear-gradient(transparent, black);
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
             padding: 20px 0;
             text-align: center;
-            font-size: 1.2rem;
+            font-size: 1rem;
             letter-spacing: 2px;
             z-index: 3;
+            color: #444;
         }
+
+        .ch-card:not(.locked) .ch-label { color: #fff; }
 
         /* --- TELA DE BRIEFING --- */
         .briefing-layout {
@@ -194,7 +205,7 @@
 
     <section id="screen-chapters" class="screen hidden">
         <div class="back-nav" onclick="nav('screen-title')">[ VOLTAR ]</div>
-        <h2 style="letter-spacing: 15px; color: #333;">DATABASE_CHAPTERS</h2>
+        <h2 style="letter-spacing: 15px; color: #222;">DATABASE_CHAPTERS</h2>
         
         <div class="chapter-grid">
             <div class="ch-card" onclick="openBriefing(1)">
@@ -203,19 +214,30 @@
             </div>
 
             <div class="ch-card locked" onclick="openBriefing(2)">
-                <div class="lock-icon">🔒</div>
+                <svg class="lock-svg" viewBox="0 0 24 24">
+                    <path d="M18,8H17V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9ZM18,20H6V10H18Z"/>
+                </svg>
                 <div class="ch-label">CAPÍTULO 2</div>
             </div>
+
             <div class="ch-card locked" onclick="openBriefing(3)">
-                <div class="lock-icon">🔒</div>
+                <svg class="lock-svg" viewBox="0 0 24 24">
+                    <path d="M18,8H17V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9ZM18,20H6V10H18Z"/>
+                </svg>
                 <div class="ch-label">CAPÍTULO 3</div>
             </div>
+
             <div class="ch-card locked" onclick="openBriefing(4)">
-                <div class="lock-icon">🔒</div>
+                <svg class="lock-svg" viewBox="0 0 24 24">
+                    <path d="M18,8H17V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9ZM18,20H6V10H18Z"/>
+                </svg>
                 <div class="ch-label">CAPÍTULO 4</div>
             </div>
+
             <div class="ch-card locked" onclick="openBriefing(5)">
-                <div class="lock-icon">🔒</div>
+                <svg class="lock-svg" viewBox="0 0 24 24">
+                    <path d="M18,8H17V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9ZM18,20H6V10H18Z"/>
+                </svg>
                 <div class="ch-label">CAPÍTULO 5</div>
             </div>
         </div>
@@ -260,17 +282,11 @@
 
         function openBriefing(num) {
             const data = chapterData[num];
-            
-            // Se estiver bloqueado, não faz nada (ou você pode colocar um alerta/som)
-            if (data.locked) {
-                console.log("Acesso negado: Capítulo bloqueado.");
-                return; 
-            }
+            if (data.locked) return; 
 
             document.getElementById('b-title').innerText = data.title;
             document.getElementById('b-desc').innerText = data.desc;
             document.getElementById('b-img').src = data.img;
-            
             nav('screen-briefing');
         }
 
@@ -284,4 +300,5 @@
     </script>
 </body>
 </html>
+
 
