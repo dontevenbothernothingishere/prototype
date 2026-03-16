@@ -25,7 +25,7 @@
             overflow: hidden;
         }
 
-        /* --- FILTROS DE ATMOSFERA (CAMADAS CRT) --- */
+        /* --- FILTROS DE ATMOSFERA (EFEITO CRT) --- */
         .crt-lines {
             position: fixed; inset: 0;
             background: linear-gradient(var(--scanline-color) 50%, transparent 50%);
@@ -39,29 +39,29 @@
             z-index: 1001; pointer-events: none;
         }
 
-        /* --- SISTEMA DE GERENCIAMENTO DE TELAS --- */
+        /* --- SISTEMA DE TELAS --- */
         .screen {
             position: absolute; inset: 0;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             padding: 50px;
-            transition: opacity 0.3s ease-in-out, transform 0.3s ease-out;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
 
         .hidden { 
             opacity: 0; 
             pointer-events: none; 
-            transform: scale(1.02); /* Leve zoom ao trocar para parecer distorção de sinal */
+            transform: scale(0.98);
         }
 
-        /* --- TELA DE TÍTULO (INICIAL) --- */
+        /* --- TELA DE TÍTULO --- */
         .glitch-title {
             font-size: 8rem;
             letter-spacing: 20px;
             color: #fff;
             margin: 0;
             animation: flicker 5s infinite;
-            text-shadow: 2px 2px var(--blood);
+            text-shadow: 0 0 15px var(--blood);
         }
 
         .menu-options {
@@ -75,12 +75,13 @@
             font-size: 1.5rem; cursor: pointer;
             text-transform: uppercase; transition: 0.2s;
             text-align: center;
+            letter-spacing: 2px;
         }
 
         .btn-menu:hover { 
             color: #fff; 
             letter-spacing: 5px;
-            text-shadow: 0 0 8px #fff;
+            text-shadow: 0 0 10px #fff;
         }
 
         /* --- TELA DE SELEÇÃO DE CAPÍTULOS --- */
@@ -122,7 +123,7 @@
             transform: scale(1.05); 
         }
 
-        /* ESTILO DO CADEADO (SVG CINZA) */
+        /* --- ESTILO DO CADEADO (LOCKED) --- */
         .ch-card.locked {
             cursor: not-allowed;
             background: #080808;
@@ -155,13 +156,13 @@
 
         .ch-card:not(.locked) .ch-label { color: #fff; }
 
-        /* --- TELA DE BRIEFING (DETALHES) --- */
+        /* --- TELA DE BRIEFING --- */
         .briefing-layout {
             display: flex; gap: 40px;
             max-width: 1100px; width: 100%;
             background: rgba(5,5,5,0.9);
             padding: 30px; border: 1px solid #1a1a1a;
-            box-shadow: 0 0 50px rgba(0,0,0,1);
+            box-shadow: 0 0 40px rgba(0,0,0,1);
         }
 
         .briefing-main-img {
@@ -169,7 +170,7 @@
             background: #000; 
             border: 1px solid #333;
             object-fit: cover;
-            filter: grayscale(0.5) contrast(1.2);
+            filter: grayscale(0.3);
         }
 
         .briefing-content {
@@ -177,27 +178,9 @@
             justify-content: space-between;
         }
 
-        .b-header { 
-            border-bottom: 2px solid var(--blood); 
-            padding-bottom: 15px; 
-        }
-
-        .b-title { 
-            font-size: 3.5rem; 
-            color: #fff; 
-            margin: 0; 
-            text-transform: uppercase;
-            text-shadow: 3px 3px #000;
-        }
-
-        .b-desc { 
-            font-family: 'Courier Prime'; 
-            line-height: 1.8; 
-            color: #aaa; 
-            margin-top: 25px; 
-            font-size: 1.1rem; 
-            text-align: justify;
-        }
+        .b-header { border-bottom: 2px solid var(--blood); padding-bottom: 15px; }
+        .b-title { font-size: 3.5rem; color: #fff; margin: 0; text-transform: uppercase; }
+        .b-desc { font-family: 'Courier Prime'; line-height: 1.8; color: #aaa; margin-top: 25px; font-size: 1.1rem; }
 
         .btn-start-game {
             background: #440000; color: #fff;
@@ -205,7 +188,6 @@
             padding: 20px; font-size: 1.8rem;
             font-family: 'Special Elite'; cursor: pointer;
             transition: 0.3s;
-            margin-top: 20px;
         }
 
         .btn-start-game:hover { 
@@ -214,36 +196,27 @@
             box-shadow: 0 0 30px var(--bright-red); 
         }
 
-        /* --- BOTÕES DE NAVEGAÇÃO (VOLTAR) --- */
+        /* --- BOTÃO DE VOLTAR UNIVERSAL --- */
         .back-nav {
             position: absolute; 
             top: 40px; 
             left: 40px;
-            color: #333; 
+            color: #444; 
             cursor: pointer; 
-            font-size: 1rem;
-            font-family: 'Courier Prime', monospace;
-            text-transform: uppercase;
+            font-size: 0.9rem;
             letter-spacing: 2px;
             transition: 0.3s;
-            border: 1px solid transparent;
-            padding: 5px 10px;
+            font-family: 'Courier Prime', monospace;
+            z-index: 10;
         }
 
-        .back-nav:hover { 
-            color: #fff; 
-            border-color: #444;
-            background: rgba(255,255,255,0.05);
-        }
+        .back-nav:hover { color: #fff; }
 
-        /* --- ANIMAÇÕES --- */
         @keyframes flicker {
-            0%, 100% { opacity: 1; transform: skew(0deg); }
+            0%, 100% { opacity: 1; }
             50% { opacity: 0.8; }
-            51% { opacity: 0.9; transform: skew(0.2deg); }
             52% { opacity: 1; }
         }
-
     </style>
 </head>
 <body>
@@ -253,20 +226,17 @@
 
     <section id="screen-title" class="screen">
         <h1 class="glitch-title">OFFLINE</h1>
-        
         <div class="menu-options">
             <button class="btn-menu" onclick="nav('screen-chapters')">Acessar Banco de Dados</button>
-            <button class="btn-menu">Logs de Erro</button>
-            <button class="btn-menu" onclick="window.close()">Encerrar Terminal</button>
+            <button class="btn-menu">Arquivos de Log</button>
+            <button class="btn-menu">Sair</button>
         </div>
     </section>
 
     <section id="screen-chapters" class="screen hidden">
-        <div class="back-nav" onclick="nav('screen-title')">
-            [ < ] MENU_PRINCIPAL
-        </div>
-
-        <h2 style="letter-spacing: 15px; color: #222; margin-bottom: 20px;">DIRETÓRIOS_DISPONÍVEIS</h2>
+        <div class="back-nav" onclick="nav('screen-title')">[ VOLTAR_AO_MENU ]</div>
+        
+        <h2 style="letter-spacing: 15px; color: #222; margin-bottom: 10px;">DATABASE_CHAPTERS</h2>
         
         <div class="chapter-grid">
             <div class="ch-card" onclick="openBriefing(1)">
@@ -305,80 +275,47 @@
     </section>
 
     <section id="screen-briefing" class="screen hidden">
-        <div class="back-nav" onclick="nav('screen-chapters')">
-            [ < ] VOLTAR_AOS_ARQUIVOS
-        </div>
-
+        <div class="back-nav" onclick="nav('screen-chapters')">[ VOLTAR_AOS_ARQUIVOS ]</div>
+        
         <div class="briefing-layout">
             <img id="b-img" src="" class="briefing-main-img">
-            
             <div class="briefing-content">
                 <div class="b-header">
-                    <h2 id="b-title" class="b-title">NOME_ARQUIVO</h2>
+                    <h2 id="b-title" class="b-title"></h2>
                 </div>
-                
-                <p id="b-desc" class="b-desc">Carregando metadados do setor...</p>
-                
-                <button class="btn-start-game" onclick="startGame()">CONECTAR AO SETOR</button>
+                <p id="b-desc" class="b-desc"></p>
+                <button class="btn-start-game" onclick="startGame()">CONECTAR AGORA</button>
             </div>
         </div>
     </section>
 
     <script>
-        /**
-         * BANCO DE DADOS DOS CAPÍTULOS
-         * Configure aqui se o capítulo está trancado, o título, a descrição e a URL da imagem.
-         */
         const chapterData = {
             1: {
                 locked: false,
                 title: "O Despertar",
-                desc: "O sistema reiniciou, mas o prédio continua morto. Você ouve passos vindos da ventilação. Algo está tentando se comunicar através das telas de monitoramento antigas. Não olhe para trás enquanto o sinal estiver instável.",
+                desc: "O sistema reiniciou, mas o prédio continua morto. Você ouve passos vindos da ventilação. Algo está tentando se comunicar através das telas de segurança.",
                 img: "https://raw.githubusercontent.com/dontevenbothernothingishere/prototype/refs/heads/main/chapter1.jpg"
             },
-            2: {
-                locked: true,
-                title: "Corredores Vazios",
-                desc: "A iluminação de emergência é sua única amiga. Não corra. O som dos seus passos atrai a atenção de quem não tem olhos, mas ouve a sua respiração.",
-                img: "" // Futura imagem aqui
-            },
-            3: {
-                locked: true,
-                title: "O Servidor Central",
-                desc: "O coração de 'OFFLINE'. Os dados estão corrompidos e a realidade está começando a dobrar. Encontre o código de acesso antes que o hardware derreta.",
-                img: ""
-            },
-            4: {
-                locked: true,
-                title: "Laboratório de Testes",
-                desc: "Eles criaram algo que não pode ser deletado. O experimento 04 fugiu da sandbox digital e agora habita o hardware físico da instalação.",
-                img: ""
-            },
-            5: {
-                locked: true,
-                title: "Desconexão Total",
-                desc: "Não há mais volta. O sistema vai apagar tudo em 5 minutos. Você é o único arquivo restante no disco rígido. Salve-se ou seja apagado.",
-                img: ""
-            }
+            2: { locked: true },
+            3: { locked: true },
+            4: { locked: true },
+            5: { locked: true }
         };
 
-        /**
-         * FUNÇÃO DE NAVEGAÇÃO ENTRE TELAS
-         * @param {string} id - O ID da section que deve ser exibida
-         */
+        // Função de Navegação Universal
         function nav(id) {
-            // Pequeno flash de cor para simular interferência de monitor
-            document.body.style.backgroundColor = "#220000";
+            // Efeito de "limpeza" de tela
+            document.body.style.backgroundColor = "#111";
             
             setTimeout(() => {
-                document.body.style.backgroundColor = var(--bg);
+                document.body.style.backgroundColor = "#030303";
                 
-                // Oculta todas as telas
-                document.querySelectorAll('.screen').forEach(s => {
-                    s.classList.add('hidden');
-                });
+                // Oculta todas as telas existentes
+                const screens = document.querySelectorAll('.screen');
+                screens.forEach(s => s.classList.add('hidden'));
 
-                // Exibe a tela desejada
+                // Mostra apenas a tela com o ID solicitado
                 const target = document.getElementById(id);
                 if (target) {
                     target.classList.remove('hidden');
@@ -386,67 +323,42 @@
             }, 100);
         }
 
-        /**
-         * FUNÇÃO PARA CARREGAR OS DADOS NA TELA DE BRIEFING
-         * @param {number} num - O número do capítulo selecionado
-         */
+        // Função para Abrir o Briefing do Capítulo
         function openBriefing(num) {
             const data = chapterData[num];
             
-            // Impede a abertura se estiver trancado
+            // Se o capítulo estiver trancado, não faz nada
             if (data.locked) {
-                console.warn("ACESSO NEGADO: Diretório protegido por criptografia.");
-                // Opcional: Adicionar um efeito de som de erro aqui
+                console.log("Arquivo criptografado. Acesso negado.");
                 return; 
             }
 
-            // Preenche os campos da tela de briefing
-            const titleElem = document.getElementById('b-title');
-            const descElem = document.getElementById('b-desc');
-            const imgElem = document.getElementById('b-img');
-
-            titleElem.innerText = data.title;
-            descElem.innerText = data.desc;
-            imgElem.src = data.img;
+            // Injeta os dados do capítulo na tela de briefing
+            document.getElementById('b-title').innerText = data.title;
+            document.getElementById('b-desc').innerText = data.desc;
+            document.getElementById('b-img').src = data.img;
             
-            // Navega para a tela de briefing
+            // Muda para a tela de briefing
             nav('screen-briefing');
         }
 
-        /**
-         * FUNÇÃO PARA INICIAR O JOGO (FINAL)
-         */
         function startGame() {
-            // Efeito visual dramático de inversão
-            document.body.style.filter = "invert(1) contrast(2) grayscale(1)";
-            
+            // Efeito visual de entrada no jogo
+            document.body.style.filter = "invert(1) contrast(2)";
             setTimeout(() => {
-                alert("CONEXÃO ESTABELECIDA.\nSINCRONIZANDO CONSCIÊNCIA...");
-                
-                // Aqui você redirecionaria para a página real do jogo:
-                // window.location.href = "game_cap1.html";
-                
-                // Para o protótipo, apenas resetamos o filtro e voltamos
-                document.body.style.filter = "none";
-                nav('screen-title');
-            }, 800);
+                alert("CONEXÃO ESTABELECIDA. BOA SORTE.");
+                location.reload(); 
+            }, 500);
         }
 
-        // Event listener para teclas de atalho (Opcional)
-        document.addEventListener('keydown', (e) => {
-            if (e.key === "Escape") {
-                // Se apertar ESC, tenta sempre voltar uma tela
-                const briefingVisible = !document.getElementById('screen-briefing').classList.contains('hidden');
-                const chaptersVisible = !document.getElementById('screen-chapters').classList.contains('hidden');
-
-                if (briefingVisible) nav('screen-chapters');
-                else if (chaptersVisible) nav('screen-title');
-            }
-        });
-
+        // Inicialização: Garante que a tela de título seja a primeira (opcional, já está no HTML)
+        window.onload = () => {
+            console.log("Sistema OFFLINE carregado.");
+        };
     </script>
 </body>
 </html>
+
 
 
 
