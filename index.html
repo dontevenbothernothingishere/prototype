@@ -50,13 +50,6 @@
         .hidden { opacity: 0; pointer-events: none; }
 
         /* --- TELA DE TÍTULO --- */
-        .logo-img {
-            max-width: 600px;
-            height: auto;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 0 10px var(--blood));
-        }
-
         .glitch-title {
             font-size: 8rem;
             letter-spacing: 20px;
@@ -80,7 +73,7 @@
 
         .btn-menu:hover { color: #fff; letter-spacing: 5px; }
 
-        /* --- TELA DE SELEÇÃO (CARDS LIMPOS) --- */
+        /* --- TELA DE SELEÇÃO (CARDS) --- */
         .chapter-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -96,9 +89,12 @@
             cursor: pointer; transition: 0.3s ease;
             overflow: hidden;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .ch-card:hover { 
+        .ch-card:not(.locked):hover { 
             border-color: var(--bright-red);
             box-shadow: 0 0 20px rgba(255,0,0,0.15);
         }
@@ -110,7 +106,20 @@
             transition: 0.5s;
         }
 
-        .ch-card:hover .ch-img-preview { opacity: 0.8; transform: scale(1.05); }
+        .ch-card:not(.locked):hover .ch-img-preview { opacity: 0.8; transform: scale(1.05); }
+
+        /* Estilo para Capítulo Bloqueado */
+        .ch-card.locked {
+            cursor: not-allowed;
+            border: 1px dashed #222;
+        }
+
+        .lock-icon {
+            font-size: 3rem;
+            color: #333;
+            position: absolute;
+            z-index: 2;
+        }
 
         .ch-label {
             position: absolute; bottom: 0; width: 100%;
@@ -119,9 +128,10 @@
             text-align: center;
             font-size: 1.2rem;
             letter-spacing: 2px;
+            z-index: 3;
         }
 
-        /* --- TELA DE BRIEFING (COM DESCRIÇÃO) --- */
+        /* --- TELA DE BRIEFING --- */
         .briefing-layout {
             display: flex; gap: 40px;
             max-width: 1100px; width: 100%;
@@ -141,11 +151,7 @@
             justify-content: space-between;
         }
 
-        .b-header {
-            border-bottom: 2px solid var(--blood);
-            padding-bottom: 15px;
-        }
-
+        .b-header { border-bottom: 2px solid var(--blood); padding-bottom: 15px; }
         .b-title { font-size: 3.5rem; color: #fff; margin: 0; text-transform: uppercase; }
         .b-desc { font-family: 'Courier Prime'; line-height: 1.8; color: #aaa; margin-top: 25px; font-size: 1.1rem; }
 
@@ -179,7 +185,6 @@
 
     <section id="screen-title" class="screen">
         <h1 class="glitch-title">OFFLINE</h1>
-        
         <div class="menu-options">
             <button class="btn-menu" onclick="nav('screen-chapters')">Iniciar Sistema</button>
             <button class="btn-menu">Arquivos de Log</button>
@@ -193,23 +198,24 @@
         
         <div class="chapter-grid">
             <div class="ch-card" onclick="openBriefing(1)">
-                <img src="https://raw.githubusercontent.com/dontevenbothernothingishere/prototype/refs/heads/main/chapter1.jpg" class="ch-img-preview" alt="">
+                <img src="https://raw.githubusercontent.com/dontevenbothernothingishere/prototype/refs/heads/main/chapter1.jpg" class="ch-img-preview">
                 <div class="ch-label">CAPÍTULO 1</div>
             </div>
-            <div class="ch-card" onclick="openBriefing(2)">
-                <img src="chapter2.jpg" class="ch-img-preview" alt="">
+
+            <div class="ch-card locked" onclick="openBriefing(2)">
+                <div class="lock-icon">🔒</div>
                 <div class="ch-label">CAPÍTULO 2</div>
             </div>
-            <div class="ch-card" onclick="openBriefing(3)">
-                <img src="chapter3.jpg" class="ch-img-preview" alt="">
+            <div class="ch-card locked" onclick="openBriefing(3)">
+                <div class="lock-icon">🔒</div>
                 <div class="ch-label">CAPÍTULO 3</div>
             </div>
-            <div class="ch-card" onclick="openBriefing(4)">
-                <img src="chapter4.jpg" class="ch-img-preview" alt="">
+            <div class="ch-card locked" onclick="openBriefing(4)">
+                <div class="lock-icon">🔒</div>
                 <div class="ch-label">CAPÍTULO 4</div>
             </div>
-            <div class="ch-card" onclick="openBriefing(5)">
-                <img src="chapter5.jpg" class="ch-img-preview" alt="">
+            <div class="ch-card locked" onclick="openBriefing(5)">
+                <div class="lock-icon">🔒</div>
                 <div class="ch-label">CAPÍTULO 5</div>
             </div>
         </div>
@@ -217,53 +223,33 @@
 
     <section id="screen-briefing" class="screen hidden">
         <div class="back-nav" onclick="nav('screen-chapters')">[ CANCELAR_CONEXÃO ]</div>
-        
         <div class="briefing-layout">
             <img id="b-img" src="" class="briefing-main-img">
-            
             <div class="briefing-content">
                 <div class="b-header">
-                    <h2 id="b-title" class="b-title">NOME DO CAPÍTULO</h2>
+                    <h2 id="b-title" class="b-title"></h2>
                 </div>
-                <p id="b-desc" class="b-desc">Descrição do horror...</p>
-                
+                <p id="b-desc" class="b-desc"></p>
                 <button class="btn-start-game" onclick="startGame()">CONECTAR AGORA</button>
             </div>
         </div>
     </section>
 
     <script>
-        // CONFIGURAÇÃO DOS CAPÍTULOS
         const chapterData = {
             1: {
+                locked: false,
                 title: "O Despertar",
                 desc: "O sistema reiniciou, mas o prédio continua morto. Você ouve passos vindos da ventilação. Algo está tentando se comunicar através das telas.",
                 img: "https://raw.githubusercontent.com/dontevenbothernothingishere/prototype/refs/heads/main/chapter1.jpg"
             },
-            2: {
-                title: "Corredores Vazios",
-                desc: "A iluminação de emergência é sua única amiga. Não corra. O som dos seus passos atrai a atenção de quem não tem olhos.",
-                img: "chapter2.jpg"
-            },
-            3: {
-                title: "O Servidor Central",
-                desc: "O coração de 'OFFLINE'. Os dados estão corrompidos e a realidade está começando a dobrar. Encontre o código de acesso.",
-                img: "chapter3.jpg"
-            },
-            4: {
-                title: "Laboratório de Testes",
-                desc: "Eles criaram algo que não pode ser deletado. O experimento 04 fugiu da sandbox digital e agora habita o hardware.",
-                img: "chapter4.jpg"
-            },
-            5: {
-                title: "Desconexão Total",
-                desc: "Não há mais volta. O sistema vai apagar tudo em 5 minutos. Você é o único arquivo restante.",
-                img: "chapter5.jpg"
-            }
+            2: { locked: true },
+            3: { locked: true },
+            4: { locked: true },
+            5: { locked: true }
         };
 
         function nav(id) {
-            // Efeito visual de troca de tela
             document.body.style.backgroundColor = "#111";
             setTimeout(() => {
                 document.body.style.backgroundColor = "#030303";
@@ -274,9 +260,16 @@
 
         function openBriefing(num) {
             const data = chapterData[num];
+            
+            // Se estiver bloqueado, não faz nada (ou você pode colocar um alerta/som)
+            if (data.locked) {
+                console.log("Acesso negado: Capítulo bloqueado.");
+                return; 
+            }
+
             document.getElementById('b-title').innerText = data.title;
             document.getElementById('b-desc').innerText = data.desc;
-            document.getElementById('b-img').src = data.img; // Define a imagem do briefing
+            document.getElementById('b-img').src = data.img;
             
             nav('screen-briefing');
         }
@@ -285,9 +278,10 @@
             document.body.style.filter = "invert(1) contrast(2)";
             setTimeout(() => {
                 alert("CONEXÃO ESTABELECIDA. BOA SORTE.");
-                location.reload(); // Simula o início
+                location.reload();
             }, 500);
         }
     </script>
 </body>
 </html>
+
