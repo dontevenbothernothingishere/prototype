@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Game UI Prototype</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
+
+        :root {
+            --primary: #00f2ff;
+            --secondary: #ff0055;
+            --bg-dark: #050508;
+            --panel-bg: rgba(20, 20, 25, 0.85);
+            --transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        * { box-sizing: border-box; }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+        }
+
+        /* --- AMBIENT BACKGROUND --- */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #050508 100%);
+        }
+
+        .stars {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: twinkle 5s infinite;
+        }
+
+        /* --- SCREEN WRAPPER --- */
+        .screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            transition: all 0.6s ease-in-out;
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .hidden {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.1) translateY(-20px);
+            pointer-events: none;
+        }
+
+        /* --- TITLE SCREEN --- */
+        .game-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 15px;
+            margin-bottom: 0;
+            background: linear-gradient(to bottom, #fff 40%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.5));
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            letter-spacing: 8px;
+            color: var(--secondary);
+            margin-bottom: 3rem;
+            text-transform: uppercase;
+        }
+
+        .main-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 300px;
+        }
+
+        /* --- UI BUTTONS --- */
+        .menu-btn {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: var(--transition);
+            overflow: hidden;
+            text-align: left;
+        }
+
+        .menu-btn::before {
+            content: '';
+            position: absolute;
+            left: -100%;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .menu-btn:hover {
+            background: var(--primary);
+            color: black;
+            transform: translateX(10px);
+            border-color: var(--primary);
+            box-shadow: -10px 0 20px rgba(0, 242, 255, 0.4);
+        }
+
+        .menu-btn:hover::before { left: 100%; }
+
+        /* --- CHAPTER SELECT --- */
+        .chapter-container {
+            display: flex;
+            gap: 30px;
+            margin-top: 40px;
+            perspective: 1000px;
+        }
+
+        .chapter-card {
+            width: 260px;
+            height: 380px;
+            background: var(--panel-bg);
+            border-top: 3px solid var(--primary);
+            position: relative;
+            transition: 0.4s;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px;
+        }
+
+        .chapter-card:hover {
+            transform: translateY(-15px) rotateY(10deg);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 15px var(--primary);
+        }
+
+        .chapter-img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 60%;
+            background: #222;
+            background-size: cover;
+            opacity: 0.6;
+            transition: 0.4s;
+        }
+
+        .chapter-card:hover .chapter-img { opacity: 1; transform: scale(1.1); }
+
+        .ch-num { font-size: 0.8rem; color: var(--primary); }
+        .ch-title { font-size: 1.8rem; font-weight: bold; margin: 5px 0; }
+        .ch-desc { font-size: 0.9rem; color: #aaa; }
+
+        /* --- OPTIONS PANEL --- */
+        .options-panel {
+            background: var(--panel-bg);
+            padding: 40px;
+            border: 1px solid var(--primary);
+            width: 500px;
+            backdrop-filter: blur(10px);
+        }
+
+        .option-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="range"] { accent-color: var(--primary); width: 200px; }
+
+        /* --- LOADING OVERLAY --- */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 4px;
+            background: #222;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .loading-progress {
+            position: absolute;
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .back-nav {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            font-family: 'Orbitron';
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bg-canvas"></div>
+
+    <div id="loader">
+        <h2 style="letter-spacing: 5px;">INITIALIZING...</h2>
+        <div class="loading-bar">
+            <div id="progress" class="loading-progress"></div>
+        </div>
+    </div>
+
+    <section id="screen-title" class="screen">
+        <div class="game-logo">NEON PULSE</div>
+        <div class="subtitle">PROTOCOL: ASCENSION</div>
+        
+        <div class="main-menu">
+            <button class="menu-btn" onclick="showScreen('screen-chapters')">New Game</button>
+            <button class="menu-btn" onclick="alert('No save data found.')">Load Game</button>
+            <button class="menu-btn" onclick="showScreen('screen-options')">Settings</button>
+            <button class="menu-btn" onclick="window.close()">Exit To Desktop</button>
+        </div>
+    </section>
+
+    <section id="screen-chapters" class="screen hidden">
+        <a class="back-nav" onclick="showScreen('screen-title')">< BACK TO MAIN</a>
+        <h1 style="font-family: Orbitron;">LEVEL SELECT</h1>
+        
+        <div class="chapter-container">
+            <div class="chapter-card" onclick="startGame('Chapter 1')">
+                <div class="chapter-img" style="background-image: linear-gradient(45deg, #111, #333);"></div>
+                <div class="ch-num">LEVEL 01</div>
+                <div class="ch-title">THE VOID</div>
+                <div class="ch-desc">Wake up in the derelict hangar. Find the data core.</div>
+            </div>
+
+            <div class="chapter-card" onclick="startGame('Chapter 2')">
+                <div class="chapter-img" style="background-image: linear-gradient(45deg, #200, #400);"></div>
+                <div class="ch-num">LEVEL 02</div>
+                <div class="ch-title">BLOOD GRID</div>
+                <div class="ch-desc">Navigate the high-security server farm in the clouds.</div>
+            </div>
+
+            <div class="chapter-card" onclick="startGame('Chapter 3')">
+                <div class="chapter-img" style="background-image: linear-gradient(45deg, #002, #004);"></div>
+                <div class="ch-num">LEVEL 03</div>
+                <div class="ch-title">CORE ZERO</div>
+                <div class="ch-desc">Face the architect of the simulation.</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="screen-options" class="screen hidden">
+        <a class="back-nav" onclick="showScreen('screen-title')">< BACK</a>
+        <div class="options-panel">
+            <h2 style="font-family: Orbitron; border-bottom: 1px solid #444; padding-bottom: 10px;">SYSTEM SETTINGS</h2>
+            
+            <div class="option-row">
+                <span>Master Volume</span>
+                <input type="range" min="0" max="100" value="80">
+            </div>
+            <div class="option-row">
+                <span>Music Volume</span>
+                <input type="range" min="0" max="100" value="65">
+            </div>
+            <div class="option-row">
+                <span>Motion Blur</span>
+                <input type="checkbox" checked>
+            </div>
+            <div class="option-row">
+                <span>Ray Tracing</span>
+                <input type="checkbox">
+            </div>
+
+            <button class="menu-btn" style="width: 100%; text-align: center; margin-top: 20px;" onclick="showScreen('screen-title')">Save Changes</button>
+        </div>
+    </section>
+
+    <script>
+        // 1. Generate Stars for Background
+        const bg = document.getElementById('bg-canvas');
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'stars';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 5 + 's';
+            bg.appendChild(star);
+        }
+
+        // 2. Navigation Logic
+        function showScreen(screenId) {
+            // Hide all
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            // Show target
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        // 3. Loading Simulation
+        function startGame(chapter) {
+            const loader = document.getElementById('loader');
+            const progress = document.getElementById('progress');
+            loader.style.display = 'flex';
+            
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    alert("Game Started: " + chapter);
+                    loader.style.display = 'none';
+                    width = 0;
+                } else {
+                    width += Math.random() * 10;
+                    progress.style.width = width + '%';
+                }
+            }, 100);
+        }
+
+        // Parallax Mouse Effect
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+            bg.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`;
+        });
+    </script>
+</body>
+</html>
+
