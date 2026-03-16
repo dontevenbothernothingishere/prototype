@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,6 @@
             --blood: #8b0000;
             --terminal-green: #1aff1a;
             --vhs-gray: #1a1a1a;
-            --glitch-speed: 0.2s;
         }
 
         body, html {
@@ -25,7 +24,7 @@
             overflow: hidden;
         }
 
-        /* --- VHS SCANLINE OVERLAY --- */
+        /* --- EFEITO VHS E CRT --- */
         .crt-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -45,7 +44,7 @@
             pointer-events: none;
         }
 
-        /* --- SCREENS --- */
+        /* --- GERENCIAMENTO DE TELAS --- */
         .screen {
             position: absolute;
             inset: 0;
@@ -53,14 +52,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.8s ease;
+            transition: opacity 0.5s ease;
         }
 
         .hidden { opacity: 0; pointer-events: none; }
 
-        /* --- TITLE SCREEN --- */
-        .logo-container { position: relative; }
-
+        /* --- MENU PRINCIPAL --- */
         .title {
             font-size: 8rem;
             color: white;
@@ -77,12 +74,7 @@
             6% { transform: translate(0); }
         }
 
-        .main-menu {
-            margin-top: 50px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+        .main-menu { margin-top: 50px; display: flex; flex-direction: column; gap: 15px; }
 
         .menu-item {
             font-family: 'Courier Prime', monospace;
@@ -96,73 +88,89 @@
             text-align: left;
         }
 
-        .menu-item:hover {
-            color: white;
-            text-shadow: 0 0 10px white;
-            transform: scale(1.1);
-        }
-
+        .menu-item:hover { color: white; text-shadow: 0 0 10px white; transform: scale(1.1); }
         .menu-item::before { content: "> "; opacity: 0; }
         .menu-item:hover::before { opacity: 1; }
 
-        /* --- CHAPTER SELECT --- */
-        .chapter-list {
-            display: flex;
-            gap: 20px;
-            margin-top: 30px;
-        }
+        /* --- SELEÇÃO DE CAPÍTULOS --- */
+        .chapter-list { display: flex; gap: 20px; margin-top: 30px; }
 
         .chapter-box {
-            width: 180px;
-            height: 250px;
-            border: 1px solid #333;
-            background: #0a0a0a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.4s;
-            position: relative;
-            filter: grayscale(1);
+            width: 180px; height: 250px;
+            border: 1px solid #333; background: #0a0a0a;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.4s; filter: grayscale(1);
         }
 
         .chapter-box:hover {
-            border-color: var(--blood);
-            transform: translateY(-10px);
-            filter: grayscale(0);
-            box-shadow: 0 0 20px rgba(139, 0, 0, 0.4);
+            border-color: var(--blood); transform: translateY(-10px);
+            filter: grayscale(0); box-shadow: 0 0 20px rgba(139, 0, 0, 0.4);
         }
 
-        .chapter-img {
-            width: 100%;
-            height: 120px;
-            background: #151515;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            color: #444;
+        .chapter-img-placeholder {
+            width: 100%; height: 120px; background: #151515; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #444;
         }
 
-        .chapter-title { font-size: 1rem; color: #fff; }
+        .chapter-title { font-size: 1rem; color: #fff; text-align: center; }
         .status { font-size: 0.7rem; margin-top: 10px; color: #555; }
-
         .locked { cursor: not-allowed; opacity: 0.4; }
-        .locked:hover { transform: none; border-color: #333; box-shadow: none; }
+        .locked:hover { transform: none; border-color: #333; box-shadow: none; filter: grayscale(1); }
 
-        /* --- BACK BUTTON --- */
-        .btn-back {
-            position: absolute;
-            bottom: 50px;
-            left: 50px;
-            color: #444;
-            text-decoration: none;
-            font-family: 'Courier Prime';
-            cursor: pointer;
+        /* --- TELA DE DETALHES DO CAPÍTULO --- */
+        #screen-details {
+            background: rgba(5, 5, 5, 0.95);
         }
 
+        .details-container {
+            width: 600px;
+            border: 1px solid #444;
+            padding: 40px;
+            background: #0a0a0a;
+            position: relative;
+        }
+
+        .details-header {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--blood);
+            padding-bottom: 10px;
+        }
+
+        .details-desc {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #aaa;
+            margin-bottom: 40px;
+            min-height: 100px;
+        }
+
+        .btn-start {
+            background: var(--blood);
+            color: white;
+            border: 1px solid red;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-family: 'Special Elite', serif;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn-start:hover {
+            background: red;
+            box-shadow: 0 0 20px red;
+            transform: scale(1.05);
+        }
+
+        /* --- BOTÃO VOLTAR --- */
+        .btn-back {
+            position: absolute; bottom: 50px; left: 50px;
+            color: #444; text-decoration: none; font-family: 'Courier Prime';
+            cursor: pointer; font-size: 1.2rem; background: none; border: none;
+        }
         .btn-back:hover { color: white; }
 
     </style>
@@ -173,84 +181,110 @@
     <div class="vignette"></div>
 
     <div id="screen-main" class="screen">
-        <div class="logo-container">
-            <h1 class="title">OFFLINE</h1>
-        </div>
-        <p style="color: var(--blood); letter-spacing: 5px;">CONNECTION LOST</p>
+        <h1 class="title">OFFLINE</h1>
+        <p style="color: var(--blood); letter-spacing: 5px;">SISTEMA CORROMPIDO</p>
 
         <nav class="main-menu">
-            <button class="menu-item" onclick="changeScreen('screen-chapters')">Resume Log</button>
-            <button class="menu-item" onclick="changeScreen('screen-chapters')">New Entry</button>
-            <button class="menu-item">System Settings</button>
-            <button class="menu-item">Quit</button>
+            <button class="menu-item" onclick="changeScreen('screen-chapters')">Arquivos Locais</button>
+            <button class="menu-item">Opções</button>
+            <button class="menu-item">Sair</button>
         </nav>
     </div>
 
     <div id="screen-chapters" class="screen hidden">
-        <h2 style="font-size: 3rem; margin-bottom: 0;">DIRECTORIES</h2>
-        <p style="margin-bottom: 40px; color: #444;">Select a corrupted sector to investigate.</p>
+        <h2 style="font-size: 3rem; margin-bottom: 0;">DIRETÓRIOS</h2>
+        <p style="margin-bottom: 40px; color: #444;">Selecione um setor para investigar.</p>
 
         <div class="chapter-list">
-            <div class="chapter-box" onclick="playChapter(1)">
-                <div class="chapter-img">FILE_01</div>
-                <span class="chapter-title">The Server Room</span>
-                <span class="status" style="color: var(--terminal-green);">AVAILABLE</span>
+            <div class="chapter-box" onclick="openChapterDetails(1)">
+                <div class="chapter-img-placeholder">FILE_01</div>
+                <span class="chapter-title">A Sala de Servidores</span>
+                <span class="status" style="color: var(--terminal-green);">DISPONÍVEL</span>
             </div>
 
-            <div class="chapter-box" onclick="playChapter(2)">
-                <div class="chapter-img">FILE_02</div>
-                <span class="chapter-title">Maintenance</span>
-                <span class="status">ENCRYPTED</span>
-            </div>
-
-            <div class="chapter-box locked">
-                <div class="chapter-img">FILE_03</div>
-                <span class="chapter-title">The Hive</span>
-                <span class="status">LOCKED</span>
+            <div class="chapter-box" onclick="openChapterDetails(2)">
+                <div class="chapter-img-placeholder">FILE_02</div>
+                <span class="chapter-title">Manutenção</span>
+                <span class="status" style="color: var(--terminal-green);">DISPONÍVEL</span>
             </div>
 
             <div class="chapter-box locked">
-                <div class="chapter-img">FILE_04</div>
-                <span class="chapter-title">Breakroom</span>
-                <span class="status">LOCKED</span>
+                <div class="chapter-img-placeholder">FILE_03</div>
+                <span class="chapter-title">A Colmeia</span>
+                <span class="status">BLOQUEADO</span>
             </div>
-
+            
             <div class="chapter-box locked">
-                <div class="chapter-img">FILE_05</div>
-                <span class="chapter-title">The Admin</span>
-                <span class="status">LOCKED</span>
+                <div class="chapter-img-placeholder">FILE_04</div>
+                <span class="chapter-title">Desconhecido</span>
+                <span class="status">BLOQUEADO</span>
             </div>
         </div>
 
-        <a class="btn-back" onclick="changeScreen('screen-main')">< RETURN TO MAIN</a>
+        <button class="btn-back" onclick="changeScreen('screen-main')">< VOLTAR</button>
+    </div>
+
+    <div id="screen-details" class="screen hidden">
+        <div class="details-container">
+            <h2 id="detail-title" class="details-header">NOME DO CAPÍTULO</h2>
+            <p id="detail-desc" class="details-desc">Descrição carregando...</p>
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <button class="btn-back" style="position: static; padding: 0;" onclick="changeScreen('screen-chapters')">< VOLTAR</button>
+                <button class="btn-start" onclick="startGame()">COMEÇAR</button>
+            </div>
+        </div>
     </div>
 
     <script>
+        // Banco de dados dos seus capítulos
+        const chapterData = {
+            1: {
+                title: "CAPÍTULO 1: A Sala de Servidores",
+                desc: "A energia principal foi cortada. Os geradores auxiliares estão no subsolo, mas os sensores de movimento indicam que você não está sozinho nos corredores. Evite as sombras. Não faça barulho."
+            },
+            2: {
+                title: "CAPÍTULO 2: Setor de Manutenção",
+                desc: "Os túneis de ventilação parecem a única saída, mas estão cheirando a sangue e ferrugem. O zelador deixou uma fita de áudio aqui antes de desaparecer. Encontre a chave do elevador."
+            }
+        };
+
+        let currentChapter = null;
+
         function changeScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
-            
-            // Play a subtle static sound effect (logic)
-            console.log("Switching to: " + id);
         }
 
-        function playChapter(num) {
-            // Flash effect for horror feel
+        // Função para abrir a tela de detalhes preenchida
+        function openChapterDetails(chapterNum) {
+            currentChapter = chapterNum;
+            const data = chapterData[chapterNum];
+            
+            // Injeta o texto no HTML
+            document.getElementById('detail-title').innerText = data.title;
+            document.getElementById('detail-desc').innerText = data.desc;
+            
+            // Muda para a tela de detalhes
+            changeScreen('screen-details');
+        }
+
+        function startGame() {
+            // Efeito de "Jump Scare" ou falha no sistema ao iniciar
             document.body.style.backgroundColor = "white";
             setTimeout(() => {
                 document.body.style.backgroundColor = "#050505";
-                alert("ACCESSING CHAPTER " + num + "...");
-            }, 50);
+                alert("INICIANDO " + chapterData[currentChapter].title + "...\n(Aqui o jogo carregaria de verdade)");
+            }, 80);
         }
 
-        // Randomly flicker the screen
+        // Efeito aleatório de tela piscando
         setInterval(() => {
-            if(Math.random() > 0.98) {
-                document.querySelector('.vignette').style.opacity = "0.2";
+            if(Math.random() > 0.97) {
+                document.querySelector('.vignette').style.opacity = "0.3";
                 setTimeout(() => document.querySelector('.vignette').style.opacity = "1", 50);
             }
-        }, 100);
+        }, 150);
     </script>
 </body>
 </html>
-
