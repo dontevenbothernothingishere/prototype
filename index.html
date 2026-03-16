@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OFFLINE | Prototype</title>
+    <title>OFFLINE | Game Interface</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap');
 
         :root {
-            --blood: #7a0000;
+            --blood: #660000;
             --bright-red: #ff0000;
-            --bg: #050505;
-            --panel: #0d0d0d;
+            --bg: #030303;
+            --gray: #121212;
+            --scanline-color: rgba(255, 255, 255, 0.05);
         }
 
         body, html {
             margin: 0; padding: 0;
             width: 100%; height: 100%;
             background-color: var(--bg);
-            color: #ccc;
+            color: #eee;
             font-family: 'Special Elite', serif;
             overflow: hidden;
         }
 
-        /* --- FILTROS DE TERROR --- */
-        .overlay {
+        /* --- FILTROS DE ATMOSFERA --- */
+        .crt-lines {
             position: fixed; inset: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%),
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 2px 100%;
+            background: linear-gradient(var(--scanline-color) 50%, transparent 50%);
+            background-size: 100% 4px;
             z-index: 1000; pointer-events: none;
         }
 
@@ -44,193 +44,249 @@
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             padding: 50px;
-            transition: opacity 0.4s ease-in-out;
+            transition: opacity 0.3s ease-in-out;
         }
 
         .hidden { opacity: 0; pointer-events: none; }
 
-        /* --- TELA 1: TÍTULO --- */
-        .title {
-            font-size: 10rem;
-            letter-spacing: 30px;
-            color: white;
-            text-shadow: 5px 5px var(--blood);
+        /* --- TELA DE TÍTULO --- */
+        .logo-img {
+            max-width: 600px;
+            height: auto;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 10px var(--blood));
+        }
+
+        .glitch-title {
+            font-size: 8rem;
+            letter-spacing: 20px;
+            color: #fff;
             margin: 0;
+            animation: flicker 5s infinite;
         }
 
-        .menu { margin-top: 60px; display: flex; flex-direction: column; gap: 20px; }
+        .menu-options {
+            margin-top: 40px;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+
         .btn-menu {
-            background: none; border: none; color: #555;
-            font-family: 'Courier Prime', monospace; font-size: 2rem;
-            cursor: pointer; text-transform: uppercase; transition: 0.3s;
+            background: none; border: none;
+            color: #555; font-family: 'Courier Prime', monospace;
+            font-size: 1.5rem; cursor: pointer;
+            text-transform: uppercase; transition: 0.2s;
+            text-align: center;
         }
-        .btn-menu:hover { color: white; transform: scale(1.1); letter-spacing: 5px; }
 
-        /* --- TELA 2: SELEÇÃO (MUITO MAIS LIMPO) --- */
+        .btn-menu:hover { color: #fff; letter-spacing: 5px; }
+
+        /* --- TELA DE SELEÇÃO (CARDS LIMPOS) --- */
         .chapter-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 20px;
-            width: 85%;
+            width: 95%;
             margin-top: 50px;
         }
 
-        .ch-box {
-            aspect-ratio: 2/3;
-            background: var(--panel);
-            border: 2px solid #222;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.4s;
-        }
-
-        .ch-box:hover {
-            border-color: var(--bright-red);
-            background: #150000;
-            box-shadow: 0 0 25px rgba(255, 0, 0, 0.3);
-        }
-
-        .ch-box h3 {
-            font-size: 1.2rem; color: #444; letter-spacing: 2px; transition: 0.3s;
-        }
-
-        .ch-box:hover h3 { color: white; }
-
-        /* --- TELA 3: BRIEFING (A TELA DA DESCRIÇÃO) --- */
-        .briefing-card {
-            width: 900px;
-            height: 600px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            display: flex;
-            box-shadow: 0 0 50px black;
-        }
-
-        .briefing-side-img {
-            width: 40%;
-            background: #000;
-            border-right: 1px solid #222;
-            display: flex; align-items: center; justify-content: center;
+        .ch-card {
+            background: var(--gray);
+            border: 1px solid #222;
+            height: 350px;
+            cursor: pointer; transition: 0.3s ease;
             overflow: hidden;
+            position: relative;
+        }
+
+        .ch-card:hover { 
+            border-color: var(--bright-red);
+            box-shadow: 0 0 20px rgba(255,0,0,0.15);
+        }
+
+        .ch-img-preview {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+            transition: 0.5s;
+        }
+
+        .ch-card:hover .ch-img-preview { opacity: 0.8; transform: scale(1.05); }
+
+        .ch-label {
+            position: absolute; bottom: 0; width: 100%;
+            background: linear-gradient(transparent, black);
+            padding: 20px 0;
+            text-align: center;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        /* --- TELA DE BRIEFING (COM DESCRIÇÃO) --- */
+        .briefing-layout {
+            display: flex; gap: 40px;
+            max-width: 1100px; width: 100%;
+            background: rgba(5,5,5,0.9);
+            padding: 30px; border: 1px solid #1a1a1a;
+        }
+
+        .briefing-main-img {
+            width: 450px; height: 500px;
+            background: #000; 
+            border: 1px solid #333;
+            object-fit: cover;
         }
 
         .briefing-content {
-            flex: 1;
-            padding: 50px;
-            display: flex; flex-direction: column;
+            flex: 1; display: flex; flex-direction: column;
             justify-content: space-between;
         }
 
-        .b-header { font-size: 3.5rem; color: var(--bright-red); margin: 0; }
-        .b-desc { font-family: 'Courier Prime'; font-size: 1.2rem; color: #777; line-height: 1.6; }
-
-        .btn-play {
-            background: var(--blood); color: white;
-            border: 1px solid #ff4444; padding: 20px;
-            font-size: 1.8rem; font-family: 'Special Elite';
-            cursor: pointer; transition: 0.3s;
+        .b-header {
+            border-bottom: 2px solid var(--blood);
+            padding-bottom: 15px;
         }
 
-        .btn-play:hover { background: var(--bright-red); box-shadow: 0 0 30px var(--bright-red); }
+        .b-title { font-size: 3.5rem; color: #fff; margin: 0; text-transform: uppercase; }
+        .b-desc { font-family: 'Courier Prime'; line-height: 1.8; color: #aaa; margin-top: 25px; font-size: 1.1rem; }
 
-        .back-btn {
+        .btn-start-game {
+            background: #440000; color: #fff;
+            border: 1px solid var(--bright-red);
+            padding: 20px; font-size: 1.8rem;
+            font-family: 'Special Elite'; cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-start-game:hover { background: var(--bright-red); color: #000; box-shadow: 0 0 30px var(--bright-red); }
+
+        .back-nav {
             position: absolute; top: 40px; left: 40px;
-            background: none; border: none; color: #444;
-            font-family: 'Courier Prime'; cursor: pointer; font-size: 1.2rem;
+            color: #333; cursor: pointer; font-size: 0.9rem;
         }
-        .back-btn:hover { color: white; }
+        .back-nav:hover { color: #fff; }
 
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+            52% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="overlay"></div>
+    <div class="crt-lines"></div>
     <div class="vignette"></div>
 
     <section id="screen-title" class="screen">
-        <h1 class="title">OFFLINE</h1>
-        <div class="menu">
-            <button class="btn-menu" onclick="nav('screen-chapters')">Iniciar_Sessão</button>
-            <button class="btn-menu">Logs</button>
+        <h1 class="glitch-title">OFFLINE</h1>
+        
+        <div class="menu-options">
+            <button class="btn-menu" onclick="nav('screen-chapters')">Iniciar Sistema</button>
+            <button class="btn-menu">Arquivos de Log</button>
             <button class="btn-menu">Sair</button>
         </div>
     </section>
 
     <section id="screen-chapters" class="screen hidden">
-        <button class="back-btn" onclick="nav('screen-title')">< MENU_PRINCIPAL</button>
-        <h2 style="font-size: 3rem; color: #444;">ARQUIVOS_DE_MEMÓRIA</h2>
+        <div class="back-nav" onclick="nav('screen-title')">[ VOLTAR ]</div>
+        <h2 style="letter-spacing: 15px; color: #333;">DATABASE_CHAPTERS</h2>
         
         <div class="chapter-grid">
-            <div class="ch-box" onclick="showBriefing(1)"><h3>CAPÍTULO 1</h3></div>
-            <div class="ch-box" onclick="showBriefing(2)"><h3>CAPÍTULO 2</h3></div>
-            <div class="ch-box" onclick="showBriefing(3)"><h3>CAPÍTULO 3</h3></div>
-            <div class="ch-box" onclick="showBriefing(4)"><h3>CAPÍTULO 4</h3></div>
-            <div class="ch-box" onclick="showBriefing(5)"><h3>CAPÍTULO 5</h3></div>
+            <div class="ch-card" onclick="openBriefing(1)">
+                <img src="CAPA_CAP1.jpg" class="ch-img-preview" alt="">
+                <div class="ch-label">CAPÍTULO 1</div>
+            </div>
+            <div class="ch-card" onclick="openBriefing(2)">
+                <img src="CAPA_CAP2.jpg" class="ch-img-preview" alt="">
+                <div class="ch-label">CAPÍTULO 2</div>
+            </div>
+            <div class="ch-card" onclick="openBriefing(3)">
+                <img src="CAPA_CAP3.jpg" class="ch-img-preview" alt="">
+                <div class="ch-label">CAPÍTULO 3</div>
+            </div>
+            <div class="ch-card" onclick="openBriefing(4)">
+                <img src="CAPA_CAP4.jpg" class="ch-img-preview" alt="">
+                <div class="ch-label">CAPÍTULO 4</div>
+            </div>
+            <div class="ch-card" onclick="openBriefing(5)">
+                <img src="CAPA_CAP5.jpg" class="ch-img-preview" alt="">
+                <div class="ch-label">CAPÍTULO 5</div>
+            </div>
         </div>
     </section>
 
     <section id="screen-briefing" class="screen hidden">
-        <button class="back-btn" onclick="nav('screen-chapters')">< VOLTAR_SELEÇÃO</button>
+        <div class="back-nav" onclick="nav('screen-chapters')">[ CANCELAR_CONEXÃO ]</div>
         
-        <div class="briefing-card">
-            <div class="briefing-side-img">
-                <span id="b-num-big" style="font-size: 10rem; color: #111;">01</span>
-            </div>
+        <div class="briefing-layout">
+            <img id="b-img" src="" class="briefing-main-img">
+            
             <div class="briefing-content">
-                <div>
-                    <h2 id="b-title" class="b-header">TÍTULO_AQUI</h2>
-                    <p id="b-desc" class="b-desc">Descrição do horror...</p>
+                <div class="b-header">
+                    <h2 id="b-title" class="b-title">NOME DO CAPÍTULO</h2>
                 </div>
-                <button class="btn-play" onclick="finalStart()">INICIAR CAPÍTULO</button>
+                <p id="b-desc" class="b-desc">Descrição do horror...</p>
+                
+                <button class="btn-start-game" onclick="startGame()">CONECTAR AGORA</button>
             </div>
         </div>
     </section>
 
     <script>
-        const chapterInfo = {
+        // CONFIGURAÇÃO DOS CAPÍTULOS
+        const chapterData = {
             1: {
-                name: "O DESPERTAR",
-                desc: "O sistema detectou um usuário não autorizado. As luzes de emergência são sua única guia. O que quer que esteja fazendo esse barulho de metal no final do corredor... não é humano."
+                title: "O Despertar",
+                desc: "O sistema reiniciou, mas o prédio continua morto. Você ouve passos vindos da ventilação. Algo está tentando se comunicar através das telas.",
+                img: "URL_DA_SUA_IMAGEM_CAP1_AQUI.jpg"
             },
             2: {
-                name: "ECOS NO VAZIO",
-                desc: "A manutenção do setor B parou há 10 anos. Então, por que as máquinas ainda estão quentes? Alguém — ou algo — está mantendo este lugar vivo."
+                title: "Corredores Vazios",
+                desc: "A iluminação de emergência é sua única amiga. Não corra. O som dos seus passos atrai a atenção de quem não tem olhos.",
+                img: "URL_DA_SUA_IMAGEM_CAP2_AQUI.jpg"
             },
             3: {
-                name: "CONEXÃO PERDIDA",
-                desc: "Você chegou à central. O ar aqui é pesado e cheira a ozônio. Os monitores estão mostrando imagens da sua própria casa. Como isso é possível?"
+                title: "O Servidor Central",
+                desc: "O coração de 'OFFLINE'. Os dados estão corrompidos e a realidade está começando a dobrar. Encontre o código de acesso.",
+                img: "URL_DA_SUA_IMAGEM_CAP3_AQUI.jpg"
             },
             4: {
-                name: "SANGUE E DADOS",
-                desc: "A digitalização falhou. Os corpos foram deixados para trás, mas as mentes foram presas na rede. Elas estão bravas. Elas querem um hospedeiro."
+                title: "Laboratório de Testes",
+                desc: "Eles criaram algo que não pode ser deletado. O experimento 04 fugiu da sandbox digital e agora habita o hardware.",
+                img: "URL_DA_SUA_IMAGEM_CAP4_AQUI.jpg"
             },
             5: {
-                name: "OFFLINE",
-                desc: "Fim da linha. O servidor principal está à frente. Desconecte o sistema ou torne-se parte dele para sempre. Não há mais volta."
+                title: "Desconexão Total",
+                desc: "Não há mais volta. O sistema vai apagar tudo em 5 minutos. Você é o único arquivo restante.",
+                img: "URL_DA_SUA_IMAGEM_CAP5_AQUI.jpg"
             }
         };
 
         function nav(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
+            // Efeito visual de troca de tela
+            document.body.style.backgroundColor = "#111";
+            setTimeout(() => {
+                document.body.style.backgroundColor = "#030303";
+                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                document.getElementById(id).classList.remove('hidden');
+            }, 150);
         }
 
-        function showBriefing(num) {
-            const info = chapterInfo[num];
-            document.getElementById('b-title').innerText = info.name;
-            document.getElementById('b-desc').innerText = info.desc;
-            document.getElementById('b-num-big').innerText = "0" + num;
+        function openBriefing(num) {
+            const data = chapterData[num];
+            document.getElementById('b-title').innerText = data.title;
+            document.getElementById('b-desc').innerText = data.desc;
+            document.getElementById('b-img').src = data.img; // Define a imagem do briefing
             
             nav('screen-briefing');
         }
 
-        function finalStart() {
-            // Efeito de glitch final
-            document.body.style.backgroundColor = "red";
+        function startGame() {
+            document.body.style.filter = "invert(1) contrast(2)";
             setTimeout(() => {
-                document.body.style.backgroundColor = "black";
                 alert("CONEXÃO ESTABELECIDA. BOA SORTE.");
-            }, 100);
+                location.reload(); // Simula o início
+            }, 500);
         }
     </script>
 </body>
