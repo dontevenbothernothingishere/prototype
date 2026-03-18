@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OFFLINE | Game Interface</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Inter:wght@300;700&family=Courier+Prime&display=swap');
 
         :root {
-            --blood: #660000;
+            --blood: #880000;
             --bright-red: #ff0000;
             --bg: #030303;
             --gray: #121212;
-            --lock-gray: #2a2a2a;
-            --scanline-color: rgba(255, 255, 255, 0.05);
+            --white: #ffffff;
+            --scanline-color: rgba(255, 255, 255, 0.03);
         }
 
         body, html {
@@ -25,7 +25,7 @@
             overflow: hidden;
         }
 
-        /* --- FILTROS DE ATMOSFERA (EFEITO CRT) --- */
+        /* --- FILTROS DE ATMOSFERA --- */
         .crt-lines {
             position: fixed; inset: 0;
             background: linear-gradient(var(--scanline-color) 50%, transparent 50%);
@@ -35,7 +35,7 @@
 
         .vignette {
             position: fixed; inset: 0;
-            background: radial-gradient(circle, transparent 20%, black 150%);
+            background: radial-gradient(circle, transparent 20%, black 140%);
             z-index: 1001; pointer-events: none;
         }
 
@@ -45,250 +45,242 @@
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             padding: 50px;
-            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
         .hidden { 
             opacity: 0; 
             pointer-events: none; 
-            transform: scale(0.98);
+            transform: scale(1.02);
         }
 
         /* --- TELA DE TÍTULO --- */
         .glitch-title {
             font-size: 8rem;
-            letter-spacing: 20px;
+            letter-spacing: 25px;
             color: #fff;
             margin: 0;
             animation: flicker 5s infinite;
-            text-shadow: 0 0 15px var(--blood);
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
 
         .menu-options {
-            margin-top: 40px;
-            display: flex; flex-direction: column; gap: 15px;
+            margin-top: 60px;
+            display: flex; flex-direction: column; gap: 20px;
         }
 
         .btn-menu {
             background: none; border: none;
-            color: #555; font-family: 'Courier Prime', monospace;
-            font-size: 1.5rem; cursor: pointer;
-            text-transform: uppercase; transition: 0.2s;
+            color: #666; font-family: 'Inter', sans-serif;
+            font-size: 1.2rem; cursor: pointer;
+            text-transform: uppercase; transition: 0.3s;
             text-align: center;
-            letter-spacing: 2px;
+            letter-spacing: 6px;
+            font-weight: 300;
         }
 
         .btn-menu:hover { 
             color: #fff; 
-            letter-spacing: 5px;
-            text-shadow: 0 0 10px #fff;
+            letter-spacing: 10px;
         }
 
         /* --- TELA DE SELEÇÃO DE CAPÍTULOS --- */
         .chapter-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 20px;
-            width: 95%;
+            gap: 25px;
+            width: 90%;
             margin-top: 50px;
         }
 
         .ch-card {
-            background: var(--gray);
-            border: 1px solid #222;
-            height: 350px;
-            cursor: pointer; transition: 0.3s ease;
+            background: #000;
+            border: 1px solid #1a1a1a;
+            height: 380px;
+            cursor: pointer; transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
             overflow: hidden;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .ch-card:not(.locked):hover { 
-            border-color: var(--bright-red);
-            box-shadow: 0 0 20px rgba(255,0,0,0.15);
-            transform: translateY(-5px);
+            border-color: #fff;
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .ch-img-preview {
             width: 100%; height: 100%;
             object-fit: cover;
-            opacity: 0.4;
-            transition: 0.5s;
+            opacity: 0.5;
+            transition: 0.6s;
+            filter: saturate(0.5);
         }
 
         .ch-card:not(.locked):hover .ch-img-preview { 
-            opacity: 0.8; 
-            transform: scale(1.05); 
+            opacity: 1; 
+            filter: saturate(1);
         }
 
-        /* --- ESTILO DO CADEADO (LOCKED) --- */
         .ch-card.locked {
             cursor: not-allowed;
-            background: #080808;
-            border: 1px solid #1a1a1a;
+            background: #050505;
         }
 
         .lock-svg {
-            width: 50px;
-            height: 50px;
-            fill: var(--lock-gray);
-            transition: 0.3s;
-            z-index: 2;
-        }
-
-        .ch-card.locked:hover .lock-svg {
-            fill: #444;
-            transform: scale(1.1);
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px; fill: #222;
         }
 
         .ch-label {
             position: absolute; bottom: 0; width: 100%;
-            background: linear-gradient(transparent, rgba(0,0,0,0.9));
-            padding: 20px 0;
+            padding: 30px 0;
             text-align: center;
-            font-size: 1rem;
-            letter-spacing: 2px;
-            z-index: 3;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 4px;
             color: #444;
+            background: linear-gradient(transparent, #000);
         }
 
         .ch-card:not(.locked) .ch-label { color: #fff; }
 
-        /* --- NOVO DESIGN: TELA DE BRIEFING (PÁGINA CINEMÁTICA) --- */
+        /* --- NOVO DESIGN: TELA DE INFO (CINEMÁTICO MODERNO) --- */
         #screen-briefing {
-            padding: 0; /* Remove o padding para a imagem preencher tudo */
-            justify-content: flex-start;
-            align-items: flex-start;
+            padding: 0;
+            background: #000;
         }
 
-        .b-bg-container {
+        /* Fundo desfocado com a imagem do capítulo */
+        .b-background-blur {
             position: absolute;
             inset: 0;
             z-index: 1;
-            overflow: hidden;
         }
 
-        .b-bg-img {
-            width: 100%;
-            height: 100%;
+        .b-bg-img-blur {
+            width: 100%; height: 100%;
             object-fit: cover;
-            filter: grayscale(0.6) contrast(1.2);
-            opacity: 0.3;
-            animation: slowPan 20s linear infinite alternate;
+            filter: blur(20px) brightness(0.2) saturate(0.5);
+            transform: scale(1.1); /* Evita bordas brancas no blur */
         }
 
-        /* Degradê para garantir que o texto sempre dê pra ler, não importa a imagem */
-        .b-gradient-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, #030303 15%, rgba(3,3,3,0.8) 50%, transparent 100%);
-        }
-
-        .b-content-wrapper {
+        .b-main-container {
             position: relative;
             z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 100px;
+            gap: 80px;
+            padding: 0 10%;
             box-sizing: border-box;
         }
 
-        .b-meta-data {
-            color: var(--bright-red);
-            font-family: 'Courier Prime', monospace;
-            letter-spacing: 4px;
-            margin-bottom: 20px;
-            font-size: 1rem;
-            text-shadow: 0 0 5px var(--bright-red);
+        /* Moldura da Imagem (Estilo Pôster) */
+        .b-poster-frame {
+            width: 400px;
+            height: 550px;
+            flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            overflow: hidden;
+            background: #000;
         }
 
-        .b-title { 
-            font-size: 6rem; 
-            color: #fff; 
-            margin: 0; 
-            text-transform: uppercase; 
-            text-shadow: 4px 4px 0px var(--blood);
-            letter-spacing: 5px;
-        }
-        
-        .b-desc { 
-            font-family: 'Courier Prime'; 
-            line-height: 1.8; 
-            color: #ccc; 
-            margin-top: 30px; 
-            font-size: 1.2rem; 
-            max-width: 650px;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 25px;
-            border-left: 4px solid var(--blood);
+        .b-poster-img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            animation: slowZoom 15s infinite alternate;
         }
 
-        .b-actions {
-            margin-top: 50px;
+        /* Texto Lateral */
+        .b-info-side {
+            max-width: 600px;
             display: flex;
-            gap: 20px;
+            flex-direction: column;
+            gap: 30px;
         }
 
-        .btn-start-game {
-            background: transparent; 
+        .b-chapter-num {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 8px;
+            color: var(--bright-red);
+            text-transform: uppercase;
+        }
+
+        .b-title {
+            font-size: 5rem;
+            margin: 0;
             color: #fff;
-            border: 2px solid var(--bright-red);
-            padding: 20px 40px; 
-            font-size: 1.5rem;
-            font-family: 'Special Elite'; 
+            text-transform: uppercase;
+            line-height: 0.9;
+            letter-spacing: -2px;
+        }
+
+        .b-desc {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #999;
+            margin: 0;
+        }
+
+        .b-btn-play {
+            margin-top: 20px;
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 20px 50px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 4px;
             cursor: pointer;
+            width: fit-content;
             transition: 0.3s;
             text-transform: uppercase;
-            letter-spacing: 3px;
         }
 
-        .btn-start-game:hover { 
-            background: var(--bright-red); 
-            color: #000; 
-            box-shadow: 0 0 30px var(--bright-red); 
-            letter-spacing: 5px;
+        .b-btn-play:hover {
+            background: var(--bright-red);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255,0,0,0.3);
         }
 
-        /* --- BOTÃO DE VOLTAR UNIVERSAL --- */
+        /* --- BOTÃO VOLTAR --- */
         .back-nav {
             position: absolute; 
-            top: 40px; 
-            left: 40px;
-            color: #555; 
+            top: 50px; left: 50px;
+            color: #444; 
             cursor: pointer; 
-            font-size: 1rem;
-            letter-spacing: 3px;
+            font-size: 0.8rem;
+            letter-spacing: 4px;
             transition: 0.3s;
-            font-family: 'Courier Prime', monospace;
+            font-family: 'Inter', sans-serif;
             z-index: 10;
+            text-transform: uppercase;
         }
 
-        .back-nav:hover { 
-            color: #fff; 
-            text-shadow: 0 0 8px #fff;
-        }
-
-        /* Botão de voltar específico da tela de briefing para ficar por cima de tudo */
-        .briefing-back {
-            z-index: 10;
-        }
+        .back-nav:hover { color: #fff; }
 
         /* --- ANIMAÇÕES --- */
         @keyframes flicker {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.8; }
-            52% { opacity: 1; }
+            52% { opacity: 0.9; }
         }
 
-        @keyframes slowPan {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.1) translate(-2%, -2%); }
+        @keyframes slowZoom {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
         }
+
     </style>
 </head>
 <body>
@@ -299,69 +291,62 @@
     <section id="screen-title" class="screen">
         <h1 class="glitch-title">OFFLINE</h1>
         <div class="menu-options">
-            <button class="btn-menu" onclick="nav('screen-chapters')">Acessar Banco de Dados</button>
-            <button class="btn-menu">Arquivos de Log</button>
+            <button class="btn-menu" onclick="nav('screen-chapters')">Iniciar Banco de Dados</button>
+            <button class="btn-menu">Arquivos</button>
             <button class="btn-menu">Sair</button>
         </div>
     </section>
 
     <section id="screen-chapters" class="screen hidden">
-        <div class="back-nav" onclick="nav('screen-title')">[ < ] VOLTAR_AO_MENU</div>
-        
-        <h2 style="letter-spacing: 15px; color: #222; margin-bottom: 10px;">DATABASE_CHAPTERS</h2>
+        <div class="back-nav" onclick="nav('screen-title')">Voltar ao Início</div>
+        <h2 style="letter-spacing: 10px; color: #111; margin-bottom: 20px; font-family: 'Inter'; font-weight: 700;">CAPÍTULOS DISPONÍVEIS</h2>
         
         <div class="chapter-grid">
             <div class="ch-card" onclick="openBriefing(1)">
                 <img src="https://raw.githubusercontent.com/dontevenbothernothingishere/prototype/refs/heads/main/20260316_191612_0000.png" class="ch-img-preview">
-                <div class="ch-label">CAPÍTULO 1</div>
+                <div class="ch-label">CAPÍTULO 01</div>
             </div>
 
             <div class="ch-card locked" onclick="openBriefing(2)">
-                <svg class="lock-svg" viewBox="0 0 24 24">
-                    <path d="M18,8H17V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9ZM18,20H6V10H18Z"/>
-                </svg>
-                <div class="ch-label">CAPÍTULO 2</div>
+                <svg class="lock-svg" viewBox="0 0 24 24"><path d="M18,8H17V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9ZM18,20H6V10H18Z"/></svg>
+                <div class="ch-label">BLOQUEADO</div>
             </div>
 
             <div class="ch-card locked" onclick="openBriefing(3)">
-                <svg class="lock-svg" viewBox="0 0 24 24">
-                    <path d="M18,8H17V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9ZM18,20H6V10H18Z"/>
-                </svg>
-                <div class="ch-label">CAPÍTULO 3</div>
+                <svg class="lock-svg" viewBox="0 0 24 24"><path d="M18,8H17V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9ZM18,20H6V10H18Z"/></svg>
+                <div class="ch-label">BLOQUEADO</div>
             </div>
 
             <div class="ch-card locked" onclick="openBriefing(4)">
-                <svg class="lock-svg" viewBox="0 0 24 24">
-                    <path d="M18,8H17V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9ZM18,20H6V10H18Z"/>
-                </svg>
-                <div class="ch-label">CAPÍTULO 4</div>
+                <svg class="lock-svg" viewBox="0 0 24 24"><path d="M18,8H17V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9ZM18,20H6V10H18Z"/></svg>
+                <div class="ch-label">BLOQUEADO</div>
             </div>
 
             <div class="ch-card locked" onclick="openBriefing(5)">
-                <svg class="lock-svg" viewBox="0 0 24 24">
-                    <path d="M18,8H17V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9ZM18,20H6V10H18Z"/>
-                </svg>
-                <div class="ch-label">CAPÍTULO 5</div>
+                <svg class="lock-svg" viewBox="0 0 24 24"><path d="M18,8H17V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9ZM18,20H6V10H18Z"/></svg>
+                <div class="ch-label">BLOQUEADO</div>
             </div>
         </div>
     </section>
 
     <section id="screen-briefing" class="screen hidden">
         
-        <div class="b-bg-container">
-            <img id="b-img" src="" class="b-bg-img">
-            <div class="b-gradient-overlay"></div>
+        <div class="b-background-blur">
+            <img id="b-bg-blur" src="" class="b-bg-img-blur">
         </div>
 
-        <div class="back-nav briefing-back" onclick="nav('screen-chapters')">[ < ] ABORTAR_LEITURA</div>
-        
-        <div class="b-content-wrapper">
-            <div class="b-meta-data">> STATUS: ARQUIVO RECUPERADO // ACESSO LIBERADO</div>
-            <h2 id="b-title" class="b-title"></h2>
-            <p id="b-desc" class="b-desc"></p>
-            
-            <div class="b-actions">
-                <button class="btn-start-game" onclick="startGame()">INICIAR_CONEXÃO</button>
+        <div class="back-nav" onclick="nav('screen-chapters')">Sair da Seleção</div>
+
+        <div class="b-main-container">
+            <div class="b-poster-frame">
+                <img id="b-img" src="" class="b-poster-img">
+            </div>
+
+            <div class="b-info-side">
+                <span class="b-chapter-num" id="b-num">Capítulo 01</span>
+                <h2 id="b-title" class="b-title"></h2>
+                <p id="b-desc" class="b-desc"></p>
+                <button class="b-btn-play" onclick="startGame()">Jogar Capítulo</button>
             </div>
         </div>
 
@@ -371,8 +356,9 @@
         const chapterData = {
             1: {
                 locked: false,
+                num: "Capítulo 01",
                 title: "O Despertar",
-                desc: "O sistema reiniciou, mas o prédio continua morto. Você ouve passos vindos da ventilação. Algo está tentando se comunicar através das telas de segurança. Não confie no que você vê nas câmeras.",
+                desc: "O sistema reiniciou, mas o prédio permanece em silêncio. Algo se move nos dutos de ventilação enquanto as luzes de emergência banham os corredores em vermelho. Você não está sozinho.",
                 img: "https://raw.githubusercontent.com/dontevenbothernothingishere/prototype/refs/heads/main/20260316_191612_0000.png"
             },
             2: { locked: true },
@@ -381,57 +367,41 @@
             5: { locked: true }
         };
 
-        // Função de Navegação Universal
         function nav(id) {
-            // Efeito de "limpeza" de tela para simular troca de canal/sistema
-            document.body.style.backgroundColor = "#111";
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(s => s.classList.add('hidden'));
             
             setTimeout(() => {
-                document.body.style.backgroundColor = "#030303";
-                
-                // Oculta todas as telas existentes
-                const screens = document.querySelectorAll('.screen');
-                screens.forEach(s => s.classList.add('hidden'));
-
-                // Mostra apenas a tela com o ID solicitado
                 const target = document.getElementById(id);
-                if (target) {
-                    target.classList.remove('hidden');
-                }
-            }, 100);
+                if (target) target.classList.remove('hidden');
+            }, 50);
         }
 
-        // Função para Abrir o Briefing do Capítulo (Com novo design)
         function openBriefing(num) {
             const data = chapterData[num];
-            
-            // Se o capítulo estiver trancado, não faz nada
-            if (data.locked) {
-                console.log("Arquivo criptografado. Acesso negado.");
-                return; 
-            }
+            if (data.locked) return;
 
-            // Injeta os dados na nova estrutura
+            document.getElementById('b-num').innerText = data.num;
             document.getElementById('b-title').innerText = data.title;
             document.getElementById('b-desc').innerText = data.desc;
             document.getElementById('b-img').src = data.img;
+            document.getElementById('b-bg-blur').src = data.img;
             
-            // Muda para a tela de briefing
             nav('screen-briefing');
         }
 
         function startGame() {
-            // Efeito visual agressivo de inicialização
-            document.body.style.filter = "invert(1) contrast(3) saturate(0)";
+            document.body.style.transition = "2s";
+            document.body.style.backgroundColor = "#fff";
+            document.body.style.filter = "brightness(5)";
             setTimeout(() => {
-                alert("CONEXÃO ESTABELECIDA.\nPREPARE-SE.");
-                location.reload(); 
-            }, 500);
+                alert("CONEXÃO INICIADA.");
+                location.reload();
+            }, 1000);
         }
 
-        // Inicialização
         window.onload = () => {
-            console.log("Sistema OFFLINE carregado com sucesso.");
+            console.log("Sistema Inicializado.");
         };
     </script>
 </body>
